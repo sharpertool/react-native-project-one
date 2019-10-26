@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 
 import {
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  AsyncStorage,
 } from 'react-native'
 
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -17,10 +18,19 @@ import {
 
 const AddReview = (props) => {
   
+  const nameKey = 'reviewer_name'
   const [reviewerName, setName] = useState('')
   const [rating, setRating] = useState(0)
   const [review, setReview] = useState('')
   const [isSubmitting, setSubmitting] = useState(false)
+  
+  useEffect(() => {
+    AsyncStorage.getItem(nameKey).then(name => {
+      if (name !== null && name !== undefined) {
+        setName(name)
+      }
+    })
+  }, [])
   
   const close = () => {
     props.navigation.goBack()
@@ -28,16 +38,17 @@ const AddReview = (props) => {
   
   const submitReview = () => {
     setSubmitting(true)
+    AsyncStorage.setItem(nameKey, reviewerName)
     fetch('http://localhost:3000/review', {
       method: 'POST',
       body: JSON.stringify({
         name: reviewerName,
         rating: rating,
-        comment: review
+        comment: review,
       }),
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     })
       .then(response => response.json())
       .then(result => {
@@ -98,11 +109,11 @@ const AddReview = (props) => {
           numberOfLines={5}
         />
         
-        { isSubmitting &&
-          <ActivityIndicator
-            size="large" color="#0066CC"
-            style={{ padding: 10 }}
-          />
+        {isSubmitting &&
+        <ActivityIndicator
+          size="large" color="#0066CC"
+          style={{padding: 10}}
+        />
         }
         <TouchableOpacity
           style={styles.submitButton}
@@ -144,21 +155,21 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 3
+    borderRadius: 3,
   },
   rating: {
     fontSize: 20,
     color: 'grey',
     textAlign: 'center',
-    marginVertical: 40
+    marginVertical: 40,
   },
   stars: {
     marginBottom: 80,
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   starButton: {
-    padding: 5
+    padding: 5,
   },
   submitButton: {
     paddingVertical: 10,
@@ -166,13 +177,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#0066cc',
     borderRadius: 4,
     marginVertical: 10,
-    marginHorizontal: 20
+    marginHorizontal: 20,
   },
   submitButtonText: {
     fontSize: 18,
     color: '#ffffff',
-    textAlign: 'center'
-  }
+    textAlign: 'center',
+  },
 })
 export default AddReview
 
