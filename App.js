@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 
 
 import { createAppContainer } from 'react-navigation';
@@ -12,6 +12,8 @@ import AboutScreen from './src/components/About'
 import AddReview from './src/components/AddReview'
 
 import Icon from 'react-native-vector-icons/FontAwesome'
+import SplashScreen from 'react-native-splash-screen'
+import SplashScreenTimeout from './src/components/SplashScreenTimeout'
 
 const RootStack = createStackNavigator({
   Home: {
@@ -57,14 +59,17 @@ const Tabs = createBottomTabNavigator({
 
 const TopStack = createStackNavigator({
   Tabs: { screen: Tabs },
-  AddReview: { screen: AddReview }
+  AddReview: { screen: AddReview },
+  //Splash: SplashScreenTimeout,
 }, {
   mode: 'modal',
+  //initialRouteName: 'Splash',
   headerMode: 'none',
   defaultNavigationOptions: {
     gesturesEnabled: false,
   }
 })
+
 
 const AppContainer = createAppContainer(TopStack)
 

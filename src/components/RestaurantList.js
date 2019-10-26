@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 
 import axios from 'axios'
+import SplashScreen from 'react-native-splash-screen'
 
 import Header from './Header'
 import RestaurantRow from './RestaurantRow'
@@ -26,7 +27,13 @@ const RestaurantList = (props) => {
       .then(result => {
         console.log('Got some results', result)
         setRestaurantList(result.data)
+        SplashScreen.hide()
       })
+      .catch(error => {
+        // Can't do much here... just close splash screen
+        SplashScreen.hide()
+      })
+    //SplashScreen.hide()
   }, [])
   
   const title = Platform.select({
