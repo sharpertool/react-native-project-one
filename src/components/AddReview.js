@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native'
 
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -19,9 +20,36 @@ const AddReview = (props) => {
   const [reviewerName, setName] = useState('')
   const [rating, setRating] = useState(0)
   const [review, setReview] = useState('')
+  const [isSubmitting, setSubmitting] = useState(false)
   
   const close = () => {
     props.navigation.goBack()
+  }
+  
+  const submitReview = () => {
+    setSubmitting(true)
+    fetch('http://localhost:3000/review', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: reviewerName,
+        rating: rating,
+        comment: review
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+      .then(response => response.json())
+      .then(result => {
+        props.navigation.goBack()
+        setSubmitting(false)
+        setName('')
+        setRating(0)
+        setReview('')
+      })
+      .catch(error => {
+        setSubmitting(false)
+      })
   }
   
   return (
@@ -70,7 +98,17 @@ const AddReview = (props) => {
           numberOfLines={5}
         />
         
-        <TouchableOpacity style={styles.submitButton}>
+        { isSubmitting &&
+          <ActivityIndicator
+            size="large" color="#0066CC"
+            style={{ padding: 10 }}
+          />
+        }
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={submitReview}
+          disabled={isSubmitting}
+        >
           <Text style={styles.submitButtonText}>Submit Review</Text>
         </TouchableOpacity>
       
