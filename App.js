@@ -1,88 +1,76 @@
-import React, {useState, useEffect} from 'react'
-import {
-  StyleSheet,
-  ScrollView,
-  TextInput,
-  View,
-  Platform,
-  FlatList,
-  Image
-} from 'react-native'
+import React from 'react'
 
-import axios from 'axios'
 
-import Header from 'components/Header'
-import RestaurantRow from './src/components/RestaurantRow'
-import PizzaImage from './src/images/pizza.png'
+import { createAppContainer } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack'
+import { createBottomTabNavigator } from 'react-navigation-tabs'
 
-const App: () => React$Node = () => {
-  
-  const [search, setSearch] = useState({term: ''})
-  const [restaurants, setRestaurantList] = useState([])
-  
-  useEffect(() => {
-    axios('http://localhost:3000/restaurant_list')
-      .then(result => {
-        console.log('Got some results', result)
-        setRestaurantList(result.data)
-      })
-  }, [])
-  
-  const title = Platform.select({
-    ios: 'Restaurant Review',
-    android: 'Restaurant List',
-  })
-  
-  return (
-    <>
-      <View style={styles.container}>
-        <View style={{
-          marginTop: 30,
-          alignItems: 'center'
-        }}>
-          <Image source={PizzaImage}/>
-        </View>
-        <Header title={title}/>
-        <TextInput
-          placeholder={'Live Search'}
-          style={styles.input}
-          onChangeText={text => {
-            setSearch({term: text.toLowerCase()})
-          }}
-        />
-        <FlatList
-          data={
-            restaurants.filter(place => {
-              return (search.term == '')
-                || (place.name.toLowerCase().includes(search.term))
-            })
-          }
-          renderItem={({item, index}) => {
-            return (<RestaurantRow place={item} index={index + 1}/>)
-          }}
-          keyExtractor={item => item.name}
-          initialNumToRender={20}
-        />
-      </View>
-    </>
-  )
-}
+// Screens
+import RestaurantList from './src/components/RestaurantList'
+import RestaurantInfo from './src/components/RestaurantInfo'
+import AboutScreen from './src/components/About'
+import AddReview from './src/components/AddReview'
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    //backgroundColor: 'orange',
+import Icon from 'react-native-vector-icons/FontAwesome'
+
+const RootStack = createStackNavigator({
+  Home: {
+    screen: RestaurantList,
   },
-  input: {
-    //marginBottom: 30,
-    padding: 10,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    color: '#444',
-    borderBottomWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#f5f5f5',
-  },
+  Info: {
+    screen: RestaurantInfo,
+  }
+}, {
+  initialRouteName: 'Home',
+  defaultNavigationOptions: {
+    headerStyle: {
+      backgroundColor: '#0066cc',
+      color: '#fff',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      color: '#fff',
+    }
+  }
 })
 
-export default App
+const Tabs = createBottomTabNavigator({
+  List: { screen: RootStack },
+  About: { screen: AboutScreen },
+}, {
+  defaultNavigationOptions: ({navigation}) => {
+    return {
+      tabBarIcon: ({ tintColor }) => {
+        const {routeName} = navigation.state
+        const name = {
+          'List': 'list',
+          'About': 'info-circle'
+        }[routeName]
+        return <Icon name={name} color={tintColor} size={22} />
+      },
+      tabBarOptions: {
+        activeBackgroundColor: '#e5F0FA'
+      }
+    }
+  }
+})
+
+const TopStack = createStackNavigator({
+  Tabs: { screen: Tabs },
+  AddReview: { screen: AddReview }
+}, {
+  mode: 'modal',
+  headerMode: 'none',
+  defaultNavigationOptions: {
+    gesturesEnabled: false,
+  }
+})
+
+const AppContainer = createAppContainer(TopStack)
+
+export default AppContainer
+
+
+
+
+

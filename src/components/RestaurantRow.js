@@ -7,15 +7,22 @@ import {StyleSheet, Text, View, Button,
   Image
 } from 'react-native'
 
+import {createStackNavigator} from 'react-navigation'
+
+import Stars from './Stars'
+
 const RestaurantRow = (props) => {
   
-  const {place, index} = props
+  const {place, index, navigation} = props
   const {id, name, address, image, rating} = place
   
   const [showInfo, setInfoState] = useState(false)
   
   const infoPressed = () => {
-    setInfoState(s => { return !s })
+    // setInfoState(s => { return !s })
+    navigation.navigate('Info', {
+      place: props.place
+    })
   }
   
   return (
@@ -25,8 +32,8 @@ const RestaurantRow = (props) => {
               styles.row,
               { backgroundColor: index % 2 === 0 ? 'white' : 'lightgray'}
             ]}>
-        <View  style={styles.edges}>
-          <Text>{index}</Text>
+        <View  style={styles.stars}>
+          <Stars rating={rating}/>
         </View>
         <View style={styles.nameAddress}>
           <Text>
@@ -65,14 +72,23 @@ const RestaurantRow = (props) => {
 }
 
 const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+  },
   edges: {
-    flex: 2,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 5,
+    minWidth: 50,
   },
-  row: {
+  stars: {
+    flex: 1,
+    alignItems: 'center',
     flexDirection: 'row',
+    justifyContent: 'flex-start',
+    padding: 5,
+    minWidth: 50,
   },
   nameAddress: {
     flexDirection: 'column',
